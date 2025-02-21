@@ -1,0 +1,596 @@
+第一版，网页主体
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自适应网页布局</title>
+    <style>
+        /* 设置全局样式 */
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden; /* 防止滚动条 */
+        }
+
+        /* 外层盒子 */
+        .container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 上半部分 */
+        .top {
+            flex: 0 0 15%; /* 固定高度为15% */
+            width: 100%;
+            background-color: #f0f0f0; /* 背景色，可以根据需要修改 */
+        }
+
+        /* 中间分隔线 */
+        .divider {
+            flex: 0 0 1px; /* 固定高度为1px */
+            width: 92%;
+            background-color: #ccc; /* 分隔线颜色 */
+            margin: 0 auto; /* 水平居中 */
+        }
+
+        /* 下半部分 */
+        .bottom {
+            flex: 1; /* 占据剩余空间 */
+            width: 100%;
+            background-color: #e0e0e0; /* 背景色，可以根据需要修改 */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 上半部分 -->
+        <div class="top"></div>
+        <!-- 中间分隔线 -->
+        <div class="divider"></div>
+        <!-- 下半部分 -->
+        <div class="bottom"></div>
+    </div>
+</body>
+</html>
+
+第二版，越改越错
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* 外层容器 */
+        .container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: #f0f0f0;
+        }
+
+        /* 顶部区域 */
+        .header {
+            height: 15%;
+            width: 100%;
+            background: #ffffff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* 分隔线 */
+        .divider {
+            width: 92%;
+            height: 1px;
+            margin: 0 auto;
+            background: #cccccc;
+        }
+
+        /* 内容区域 */
+        .content {
+            height: 85%;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 8px 8px 0 0;
+            box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header"></div>
+        <div class="divider"></div>
+        <div class="content"></div>
+    </div>
+</body>
+</html>
+
+第3版，更改更错
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自适应菜单系统</title>
+    <style>
+        /* 基础布局 */
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            font-family: Arial;
+        }
+
+        /* 主容器 - 100%宽度弹性盒子 */
+        .container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            background: #f0f0f0;
+        }
+
+        /* 头部区域 */
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            background: #fff;
+            border-bottom: 2px solid #ddd;
+        }
+
+        /* 头像按钮 */
+        .avatar-box {
+            flex: 0 0 15%;
+            display: flex;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .avatar-box:hover {
+            transform: scale(1.1);
+        }
+
+        /* 内容区域（标题+翻页）的外层占位盒子 */
+        .content-wrapper {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 实际内容区域 */
+        .content-area {
+            width: 100%;
+            height: 100%;
+            padding: 15px;
+            background: #e8e8e8;
+            transition: opacity 0.3s;
+        }
+
+        /* 浮动菜单 */
+        .float-menu {
+            position: absolute;
+            top: 0;
+            right: -100%; /* 初始隐藏 */
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            display: flex;
+            flex-direction: row-reverse; /* 内容从右向左排列 */
+            align-items: center;
+            padding: 15px;
+            gap: 10px;
+            transition: right 0.3s;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+        }
+        .float-menu.active {
+            right: 0; /* 展开动画 */
+        }
+
+        /* 浮动菜单按钮 */
+        .menu-trigger {
+            margin-left: auto;
+            padding: 8px 15px;
+            border: none;
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.3s;
+            border-radius: 4px;
+        }
+        .menu-trigger.rotated {
+            transform: rotate(-180deg);
+        }
+
+        /* 侧拉菜单 */
+        .side-menu {
+            position: fixed;
+            left: -80%; /* 初始隐藏 */
+            top: 0;
+            width: 80%;
+            height: 100%;
+            background: #fff;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+            transition: left 0.3s;
+            z-index: 1000;
+        }
+        .side-menu.active {
+            left: 0;
+        }
+
+        /* 遮罩层 */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 999;
+        }
+        .overlay.active {
+            display: block;
+        }
+
+        /* 辅助样式 */
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            background: #ff4444;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .menu-item {
+            padding: 10px;
+            background: #2196F3;
+            color: white;
+            border-radius: 4px;
+            min-width: 80px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <!-- 头像按钮 -->
+            <div class="avatar-box" onclick="toggleSideMenu()">
+                <img src="avatar-placeholder.png" alt="头像" width="40">
+            </div>
+
+            <!-- 内容占位区域 -->
+            <div class="content-wrapper">
+                <!-- 实际内容 -->
+                <div class="content-area">
+                    <h2>标题区域</h2>
+                    <div class="pagination">翻页控制区</div>
+                </div>
+
+                <!-- 浮动菜单 -->
+                <div class="float-menu">
+                    <div class="menu-item">菜单项1</div>
+                    <div class="menu-item">菜单项2</div>
+                    <div class="menu-item">菜单项3</div>
+                </div>
+            </div>
+
+            <!-- 浮动菜单触发按钮 -->
+            <button class="menu-trigger" onclick="toggleFloatMenu()">菜单</button>
+        </div>
+
+        <!-- 页面主体内容 -->
+        <div class="main-content" style="flex: 1; padding: 20px;">
+            页面主体内容区域...
+        </div>
+
+        <!-- 侧拉菜单 -->
+        <div class="side-menu">
+            <button class="close-btn" onclick="toggleSideMenu()">×</button>
+            <div style="padding: 20px;">
+                <h3>侧边菜单</h3>
+                <p>菜单内容...</p>
+            </div>
+        </div>
+
+        <!-- 遮罩层 -->
+        <div class="overlay" onclick="toggleSideMenu()"></div>
+    </div>
+
+    <script>
+        // 浮动菜单状态控制
+        let isFloatMenuOpen = false;
+
+        function toggleFloatMenu() {
+            const floatMenu = document.querySelector('.float-menu');
+            const triggerBtn = document.querySelector('.menu-trigger');
+            const contentArea = document.querySelector('.content-area');
+
+            isFloatMenuOpen = !isFloatMenuOpen;
+            
+            // 控制动画
+            floatMenu.classList.toggle('active');
+            triggerBtn.classList.toggle('rotated');
+            
+            // 内容区域透明度变化（保持占位）
+            contentArea.style.opacity = isFloatMenuOpen ? '0' : '1';
+        }
+
+        // 侧拉菜单控制
+        function toggleSideMenu() {
+            const sideMenu = document.querySelector('.side-menu');
+            const overlay = document.querySelector('.overlay');
+            
+            // 关闭浮动菜单（如果打开）
+            if(isFloatMenuOpen) {
+                toggleFloatMenu();
+            }
+
+            // 切换侧拉菜单
+            sideMenu.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>
+
+第4版，不想描述
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高级菜单系统</title>
+    <style>
+        /* 基础重置 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* 主容器 */
+        .container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: #f5f5f5;
+        }
+
+        /* 头部样式 */
+        .header {
+            display: flex;
+            align-items: center;
+            height: 60px;
+            background: #fff;
+            border-bottom: 1px solid #ddd;
+            padding: 0 20px;
+        }
+
+        /* 头像按钮 */
+        .avatar-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #2196F3;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .avatar-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* 内容占位区 */
+        .content-space {
+            flex: 1;
+            position: relative;
+            margin: 0 20px;
+        }
+
+        /* 实际内容区 */
+        .real-content {
+            width: 100%;
+            height: 100%;
+            padding: 15px;
+            background: #e3f2fd;
+            transition: opacity 0.3s;
+        }
+
+        /* 浮动菜单 */
+        .float-menu {
+            position: absolute;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            display: flex;
+            flex-direction: row-reverse;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+            transition: right 0.3s cubic-bezier(0.4,0,0.2,1);
+        }
+        .float-menu.active {
+            right: 0;
+        }
+
+        /* 浮动菜单按钮 */
+        .float-trigger {
+            margin-left: auto;
+            padding: 8px 16px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+        }
+        .float-trigger.rotated {
+            transform: rotate(-180deg);
+        }
+
+        /* 侧拉菜单 */
+        .side-menu {
+            position: fixed;
+            left: -80%;
+            top: 0;
+            width: 80%;
+            height: 100%;
+            background: #fff;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+            transition: left 0.3s cubic-bezier(0.4,0,0.2,1);
+            z-index: 1001;
+        }
+        .side-menu.active {
+            left: 0;
+        }
+
+        /* 遮罩层 */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.4);
+            display: none;
+            z-index: 1000;
+        }
+        .overlay.active {
+            display: block;
+        }
+
+        /* 关闭按钮 */
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* 菜单项样式 */
+        .menu-item {
+            padding: 10px 20px;
+            background: #2196F3;
+            color: white;
+            border-radius: 4px;
+            min-width: 120px;
+            text-align: center;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <!-- 头像按钮 -->
+            <div class="avatar-btn" onclick="openSideMenu()"></div>
+
+            <!-- 内容占位区 -->
+            <div class="content-space">
+                <div class="real-content">
+                    <h2>页面标题</h2>
+                    <div class="pagination">翻页控制区</div>
+                </div>
+
+                <!-- 浮动菜单 -->
+                <div class="float-menu">
+                    <div class="menu-item">功能一</div>
+                    <div class="menu-item">功能二</div>
+                    <div class="menu-item">功能三</div>
+                </div>
+            </div>
+
+            <!-- 浮动菜单触发按钮 -->
+            <button class="float-trigger" onclick="toggleFloatMenu()">⋮ 菜单</button>
+        </div>
+
+        <!-- 页面内容 -->
+        <main style="flex: 1; padding: 20px;">
+            页面主体内容区域...
+        </main>
+
+        <!-- 侧拉菜单 -->
+        <div class="side-menu">
+            <button class="close-btn" onclick="closeSideMenu()">×</button>
+            <div style="padding: 30px;">
+                <h3>系统菜单</h3>
+                <div class="menu-item" style="margin-top: 20px;">个人中心</div>
+                <div class="menu-item">设置</div>
+                <div class="menu-item">帮助</div>
+            </div>
+        </div>
+
+        <!-- 遮罩层 -->
+        <div class="overlay" onclick="closeSideMenu()"></div>
+    </div>
+
+    <script>
+        // 状态跟踪
+        let isFloatOpen = false;
+        let isSideOpen = false;
+
+        // 浮动菜单控制
+        function toggleFloatMenu() {
+            const floatMenu = document.querySelector('.float-menu');
+            const trigger = document.querySelector('.float-trigger');
+            
+            isFloatOpen = !isFloatOpen;
+            floatMenu.classList.toggle('active');
+            trigger.classList.toggle('rotated');
+        }
+
+        // 打开侧拉菜单
+        function openSideMenu() {
+            const sideMenu = document.querySelector('.side-menu');
+            const overlay = document.querySelector('.overlay');
+            
+            // 关闭浮动菜单
+            if(isFloatOpen) {
+                toggleFloatMenu();
+            }
+            
+            // 打开侧拉菜单
+            sideMenu.classList.add('active');
+            overlay.classList.add('active');
+            isSideOpen = true;
+        }
+
+        // 关闭侧拉菜单
+        function closeSideMenu() {
+            const sideMenu = document.querySelector('.side-menu');
+            const overlay = document.querySelector('.overlay');
+            
+            sideMenu.classList.remove('active');
+            overlay.classList.remove('active');
+            isSideOpen = false;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1812 @@
+最初的样式
+
+我需要这个的点击头像切换背景图以及浮动菜单样式和逻辑
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分栏网页</title>
+    <style>
+        /* 全局样式 */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: Arial, sans-serif;
+            transition: background-color 0.3s, color 0.3s; /* 日/夜模式切换动画 */
+        }
+
+        /* 夜间模式 */
+        body.night-mode {
+            background-color: #333;
+            color: #fff;
+        }
+
+        /* 上半部分样式 */
+        .top-section {
+            height: 15%; /* 占网页高度的15% */
+            background-image: url('default-bg.jpg'); /* 默认背景图 */
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: flex-end; /* 内容靠下 */
+            padding: 0 20px; /* 左右内边距 */
+            box-sizing: border-box;
+            position: relative;
+            gap: 10px; /* 元素之间的间距 */
+        }
+
+        /* 图像按钮样式 */
+        .menu-button {
+            width: 40px; /* 按钮宽度 */
+            height: 40px; /* 按钮高度 */
+            background: none; /* 无背景颜色 */
+            border: none;
+            cursor: pointer;
+            flex-shrink: 0; /* 防止按钮变形 */
+            border-radius: 50%; /* 圆形按钮 */
+        }
+
+        /* 标题样式 */
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+            white-space: nowrap; /* 标题不换行 */
+            flex-shrink: 0; /* 防止标题变形 */
+            margin-right: auto; /* 标题与翻页区之间的间距 */
+            cursor: pointer; /* 点击切换背景图 */
+        }
+
+        /* 翻页区样式 */
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 3px; /* 按钮与页码之间的间距 */
+            flex-shrink: 0; /* 防止翻页区变形 */
+        }
+
+        /* 翻页按钮样式 */
+        .page-button {
+            width: 30px;
+            height: 30px;
+            background: none; /* 无背景颜色 */
+            border: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0; /* 防止按钮变形 */
+            border-radius: 50%; /* 圆形按钮 */
+        }
+
+        /* 页码样式 */
+        .page-number {
+            background: rgba(255, 255, 255, 0.8); /* 半透明背景 */
+            padding: 5px 10px;
+            border-radius: 20px; /* 圆角长方形 */
+            font-size: 14px;
+            flex-shrink: 0; /* 防止页码变形 */
+        }
+
+        /* 浮动菜单按钮样式 */
+        .float-menu-button {
+            width: 40px;
+            height: 40px;
+            background: none; /* 无背景颜色 */
+            border: none;
+            cursor: pointer;
+            flex-shrink: 0; /* 防止按钮变形 */
+            border-radius: 50%; /* 圆形按钮 */
+            position: absolute;
+            right: 20px; /* 靠右 */
+        }
+
+        /* 浮动菜单样式 */
+        .float-menu {
+            display: none; /* 默认隐藏 */
+            position: absolute;
+            top: 0;
+            right: 80px; /* 从浮动菜单按钮左侧开始 */
+            height: 100%;
+            background-color: #fff;
+            border-left: 2px solid #ccc;
+            padding: 10px 20px;
+            box-sizing: border-box;
+            z-index: 10;
+            flex-direction: row-reverse; /* 从右往左排列 */
+            align-items: center;
+            gap: 1px; /* 菜单项之间的间距 */
+        }
+
+        /* 夜间模式下的浮动菜单 */
+        body.night-mode .float-menu {
+            background-color: rgba(51, 51, 51, 0.9); /* 半透明背景 */
+            color: #fff;
+        }
+
+        /* 横线样式 */
+        .divider {
+            width: 92%;
+            height: 5px;
+            background-color: #000;
+            margin: 0 auto;
+        }
+
+        /* 下半部分样式 */
+        .bottom-section {
+            height: 85%; /* 占网页高度的85% */
+            background-color: #e0e0e0;
+            padding: 0 2%; /* 左右间距占96% */
+            box-sizing: border-box;
+            overflow-y: auto; /* 允许纵向滚动 */
+        }
+
+        /* 列表样式 */
+        .list {
+            display: flex;
+            flex-direction: column;
+            gap: 5px; /* 盒子之间的间距 */
+        }
+
+        /* 盒子样式 */
+        .box {
+            background-color: #fff;
+            padding: 5px; /* 内边距 */
+            border: 1px solid #ccc;
+            cursor: pointer; /* 点击跳转 */
+            display: flex;
+            align-items: center; /* 内容居中 */
+            text-align: center;
+            white-space: nowrap; /* 不换行 */
+        }
+
+        /* 第一个盒子与横线的间距 */
+        .box:first-child {
+            margin-top: 5px;
+        }
+
+        /* 夜间模式下的盒子样式 */
+        body.night-mode .box {
+            background-color: #444;
+            color: #fff;
+            border-color: #666;
+        }
+
+        /* 第15个盒子下方的空白盒子 */
+        .placeholder-box {
+            height: 50px; /* 留出空白区域 */
+            border: 1px solid #ccc;
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <!-- 上半部分 -->
+    <div class="top-section">
+        <!-- 图像按钮 -->
+        <button class="menu-button" onclick="toggleSideMenu()">☰</button>
+
+        <!-- 标题 -->
+        <div class="title" onclick="changeBackground()">网页标题</div>
+
+        <!-- 翻页区 -->
+        <div class="pagination">
+            <button class="page-button" id="prev-page" onclick="prevPage()">◀</button>
+            <div class="page-number" id="page-number">01/99</div>
+            <button class="page-button" id="next-page" onclick="nextPage()">▶</button>
+        </div>
+
+        <!-- 浮动菜单按钮 -->
+        <button class="float-menu-button" onclick="toggleFloatMenu()">⚙️</button>
+
+        <!-- 浮动菜单 -->
+        <div class="float-menu" id="float-menu">
+            <p onclick="toggleNightMode()">切换日/夜模式</p>
+            <p>菜单项 1</p>
+            <p>菜单项 2</p>
+            <p>菜单项 3</p>
+        </div>
+    </div>
+
+    <!-- 横线 -->
+    <div class="divider"></div>
+
+    <!-- 下半部分 -->
+    <div class="bottom-section">
+        <div class="list" id="list">
+            <!-- 15个盒子 -->
+            <div class="box" onclick="navigateToArticle()">
+                <img src="placeholder.jpg" alt="图片" width="100" height="60">
+                <h3>标题 1</h3>
+                <p>标签 1</p>
+                <p>2023-10-01</p>
+            </div>
+            <!-- 重复14个盒子 -->
+            <!-- ... -->
+            <div class="box" onclick="navigateToArticle()">
+                <img src="placeholder.jpg" alt="图片" width="100" height="60">
+                <h3>标题 15</h3>
+                <p>标签 15</p>
+                <p>2023-10-15</p>
+            </div>
+            <!-- 空白盒子 -->
+            <div class="placeholder-box"></div>
+        </div>
+    </div>
+
+    <script>
+        // 当前页码
+        let currentPage = 1;
+        const totalPages = 99;
+
+        // 更新页码显示
+        function updatePageNumber() {
+            const pageNumber = document.getElementById('page-number');
+            pageNumber.textContent = `${String(currentPage).padStart(2, '0')}/${String(totalPages).padStart(2, '0')}`;
+
+            // 如果在第一页，隐藏左翻页按钮
+            const prevButton = document.getElementById('prev-page');
+            prevButton.style.display = currentPage === 1 ? 'none' : 'block';
+        }
+
+        // 上一页
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                updatePageNumber();
+                refreshList(); // 刷新列表
+            }
+        }
+
+        // 下一页
+        function nextPage() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                updatePageNumber();
+                refreshList(); // 刷新列表
+            }
+        }
+
+        // 刷新列表
+        function refreshList() {
+            const list = document.getElementById('list');
+            list.innerHTML = ''; // 清空列表
+            for (let i = 1; i <= 15; i++) {
+                const box = document.createElement('div');
+                box.className = 'box';
+                box.innerHTML = `
+                    <img src="placeholder.jpg" alt="图片" width="100" height="60">
+                    <h3>标题 ${(currentPage - 1) * 15 + i}</h3>
+                    <p>标签 ${(currentPage - 1) * 15 + i}</p>
+                    <p>2023-10-${String((currentPage - 1) * 15 + i).padStart(2, '0')}</p>
+                `;
+                box.onclick = navigateToArticle;
+                list.appendChild(box);
+            }
+            // 添加空白盒子
+            const placeholderBox = document.createElement('div');
+            placeholderBox.className = 'placeholder-box';
+            list.appendChild(placeholderBox);
+        }
+
+        // 切换浮动菜单
+        function toggleFloatMenu() {
+            const floatMenu = document.getElementById('float-menu');
+            const pagination = document.querySelector('.pagination');
+            const title = document.querySelector('.title');
+
+            if (floatMenu.style.display === 'flex') {
+                floatMenu.style.display = 'none';
+                pagination.style.display = 'flex';
+                title.style.display = 'block';
+            } else {
+                floatMenu.style.display = 'flex';
+                pagination.style.display = 'none';
+                title.style.display = 'none';
+            }
+        }
+
+        // 切换日/夜模式
+        function toggleNightMode() {
+            document.body.classList.toggle('night-mode');
+        }
+
+        // 切换背景图
+        const backgrounds = ['bg1.jpg', 'bg2.jpg', 'bg3.jpg'];
+        let bgIndex = 0;
+        function changeBackground() {
+            const topSection = document.querySelector('.top-section');
+            bgIndex = (bgIndex + 1) % backgrounds.length;
+            topSection.style.backgroundImage = `url('${backgrounds[bgIndex]}')`;
+        }
+
+        // 跳转到文章
+        function navigateToArticle() {
+            window.location.href = 'article.html'; // 替换为实际链接
+        }
+
+        // 初始化页码和列表
+        updatePageNumber();
+        refreshList();
+    </script>
+</body>
+</html>
+
+我需要这个版本的列表样式以及逻辑
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分栏网页</title>
+    <style>
+        /* 基础样式 */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: Arial, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            overflow: hidden;
+        }
+
+        /* 夜间模式 */
+        body.night-mode {
+            background-color: #333;
+            color: #fff;
+        }
+        body.night-mode .box {
+            background-color: #444;
+            border-color: #666;
+        }
+
+        /* 顶部区域 */
+        .top-section {
+            height: 15%;
+            background-image: url('default-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        /* 头像 */
+        .avatar-box {
+            width: 100px;
+            height: 100px;
+            flex-shrink: 0;
+        }
+        .avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #ccc;
+            cursor: pointer;
+        }
+
+        /* 主容器 */
+        .top-container {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-left: 15px;
+        }
+
+        /* 标题 */
+        .title-box {
+            flex: 1;
+            min-width: 0;
+            margin-right: 15px;
+        }
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* 分页区 */
+        .pagination-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+        }
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .page-button {
+            width: 30px;
+            height: 30px;
+            border: none;
+            background: rgba(255,255,255,0.9);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .page-number {
+            background: rgba(255,255,255,0.9);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        /* 浮动菜单 */
+        .float-menu {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translate(-100%, -50%);
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: -4px 4px 12px rgba(0,0,0,0.1);
+            min-width: 150px;
+            max-width: calc(100vw - 140px);
+            display: none;
+            flex-direction: column;
+            z-index: 100;
+        }
+        .float-menu.open {
+            display: flex;
+            animation: menuSlide 0.3s;
+        }
+        @keyframes menuSlide {
+            from { opacity: 0; transform: translate(-80%, -50%); }
+            to { opacity: 1; transform: translate(-100%, -50%); }
+        }
+        .float-menu p {
+            padding: 12px 20px;
+            margin: 0;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .float-menu p:hover {
+            background: #f5f5f5;
+        }
+
+        /* 侧拉菜单 */
+        .side-menu {
+            position: fixed;
+            left: -80%;
+            top: 0;
+            width: 80%;
+            height: 100%;
+            background: #fff;
+            z-index: 1000;
+            transition: left 0.3s;
+            box-shadow: 4px 0 12px rgba(0,0,0,0.1);
+        }
+        .side-menu.open {
+            left: 0;
+        }
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* 遮罩层 */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.4);
+            display: none;
+            z-index: 999;
+        }
+
+        /* 内容区 */
+        .bottom-section {
+            height: 85%;
+            background: #e0e0e0;
+            padding: 15px 2%;
+            overflow-y: auto;
+        }
+        .box {
+            background: #fff;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .avatar-box {
+                width: 60px;
+                height: 60px;
+            }
+            .title {
+                font-size: 16px;
+            }
+            .page-button {
+                width: 25px;
+                height: 25px;
+            }
+            .page-number {
+                padding: 3px 10px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-section">
+        <div class="avatar-box">
+            <div class="avatar" onclick="openSideMenu()"></div>
+        </div>
+
+        <div class="top-container">
+            <div class="title-box" id="title-box">
+                <div class="title" onclick="changeBackground()">网页标题</div>
+            </div>
+
+            <div class="pagination-container">
+                <div class="pagination" id="pagination">
+                    <button class="page-button" id="prev-page" onclick="prevPage()">◀</button>
+                    <div class="page-number" id="page-number">01/01</div>
+                    <button class="page-button" id="next-page" onclick="nextPage()">▶</button>
+                </div>
+                <button class="page-button" onclick="toggleFloatMenu(event)">⚙️</button>
+                <div class="float-menu" id="float-menu">
+                    <p onclick="toggleNightMode()">切换日/夜模式</p>
+                    <p>菜单项1</p>
+                    <p>菜单项2</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-section" id="bottom-section">
+        <div class="list" id="list"></div>
+    </div>
+
+    <div class="side-menu" id="side-menu">
+        <button class="close-button" onclick="closeSideMenu()">×</button>
+        <div class="music-box">
+            <iframe 
+                frameborder="no"
+                border="0"
+                marginwidth="0"
+                marginheight="0"
+                width="100%"
+                height="110"
+                src="//music.163.com/outchain/player?type=0&id=7320043013&auto=1&height=90">
+            </iframe>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="closeSideMenu()"></div>
+
+    <script>
+        // 数据
+        const articles = Array.from({length: 30}, (_,i) => ({
+            id: i+1,
+            title: `文章 ${i+1}`,
+            tag: `标签 ${(i%3)+1}`,
+            date: `2023-10-${String(i+1).padStart(2,'0')}`,
+            link: '#'
+        }));
+
+        // 状态
+        let currentPage = 1;
+        const pageSize = 15;
+        let totalPages = Math.ceil(articles.length / pageSize);
+
+        // 侧拉菜单控制
+        function openSideMenu() {
+            document.getElementById('side-menu').classList.add('open');
+            document.getElementById('overlay').style.display = 'block';
+            closeFloatMenu();
+        }
+        function closeSideMenu() {
+            document.getElementById('side-menu').classList.remove('open');
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        // 浮动菜单控制
+        function toggleFloatMenu(e) {
+            const floatMenu = document.getElementById('float-menu');
+            const isOpen = floatMenu.classList.toggle('open');
+            
+            // 计算位置
+            const btnRect = e.currentTarget.getBoundingClientRect();
+            const avatarRect = document.querySelector('.avatar-box').getBoundingClientRect();
+            floatMenu.style.maxWidth = `${avatarRect.right - btnRect.left - 20}px`;
+            
+            // 控制显示
+            document.getElementById('title-box').style.display = isOpen ? 'none' : 'flex';
+            document.getElementById('pagination').style.display = isOpen ? 'flex' : 'none';
+        }
+        function closeFloatMenu() {
+            document.getElementById('float-menu').classList.remove('open');
+            document.getElementById('title-box').style.display = 'flex';
+            document.getElementById('pagination').style.display = 'flex';
+        }
+
+        // 分页功能
+        function updatePage() {
+            document.getElementById('page-number').textContent = 
+                `${String(currentPage).padStart(2,'0')}/${String(totalPages).padStart(2,'0')}`;
+            document.getElementById('prev-page').disabled = currentPage === 1;
+            document.getElementById('next-page').disabled = currentPage === totalPages;
+            
+            // 渲染内容
+            const start = (currentPage-1)*pageSize;
+            const list = document.getElementById('list');
+            list.innerHTML = articles.slice(start, start+pageSize).map(article => `
+                <div class="box" onclick="location.href='${article.link}'">
+                    <img src="placeholder.jpg" width="100" height="60">
+                    <div style="margin-left:15px">
+                        <h3>${article.title}</h3>
+                        <p>${article.tag} • ${article.date}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function prevPage() {
+            if(currentPage > 1) {
+                currentPage--;
+                updatePage();
+            }
+        }
+
+        function nextPage() {
+            if(currentPage < totalPages) {
+                currentPage++;
+                updatePage();
+            }
+        }
+
+        // 初始化
+        function init() {
+            updatePage();
+            document.addEventListener('click', (e) => {
+                if(!e.target.closest('.pagination-container')) {
+                    closeFloatMenu();
+                }
+            });
+        }
+        window.onload = init;
+    </script>
+</body>
+</html>
+
+我需要这个的翻页区样式以及逻辑
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分栏网页</title>
+    <style>
+        /* 基础样式 */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: Arial, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            overflow: hidden;
+        }
+
+        /* 夜间模式 */
+        body.night-mode {
+            background-color: #333;
+            color: #fff;
+        }
+
+        /* 顶部区域 */
+        .top-section {
+            height: 15%;
+            background-image: url('default-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            box-sizing: border-box;
+            position: relative;
+            gap: 10px;
+        }
+
+        /* 头像盒子 */
+        .avatar-box {
+            height: 80%;
+            aspect-ratio: 1/1;
+            flex-shrink: 0;
+        }
+
+        .avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: #ccc;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        /* 标题容器 */
+        .top-container {
+            flex-grow: 1;
+            display: flex;
+            height: 100%;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-left: 10px;
+        }
+
+        /* 标题样式 */
+        .title-box {
+            flex-grow: 1;
+            min-width: 0;
+            margin-right: 10px;
+        }
+
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+        }
+
+        /* 翻页容器 */
+        .pagination-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        /* 翻页区 */
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .page-button {
+            width: 30px;
+            height: 30px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+        }
+
+        .page-number {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        /* 浮动菜单 */
+        .float-menu {
+            display: none;
+            position: absolute;
+            top: 0;
+            right: 0;
+            height: 100%;
+            background-color: #fff;
+            padding: 10px 20px;
+            box-sizing: border-box;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transform: translateX(100%);
+            transition: transform 0.3s;
+            border-left: none !important;
+            flex-direction: row-reverse;
+        }
+
+        .float-menu.open {
+            transform: translateX(0);
+        }
+
+        /* 侧拉菜单 */
+        .side-menu {
+            position: fixed;
+            top: 0;
+            left: -80%;
+            width: 80%;
+            height: 100%;
+            background-color: #fff;
+            z-index: 20;
+            transition: left 0.3s;
+            padding: 20px;
+        }
+
+        .side-menu.open {
+            left: 0;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        /* 分割线 */
+        .divider {
+            width: 92%;
+            height: 5px;
+            background-color: #000;
+            margin: 0 auto;
+        }
+
+        /* 内容区域 */
+        .bottom-section {
+            height: 85%;
+            background-color: #e0e0e0;
+            padding: 0 2%;
+            box-sizing: border-box;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .list {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .box {
+            background-color: #fff;
+            padding: 5px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        /* 夜间模式适配 */
+        body.night-mode .box {
+            background-color: #444;
+            color: #fff;
+            border-color: #666;
+        }
+
+        body.night-mode .page-number {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+        }
+
+        body.night-mode .float-menu {
+            background-color: rgba(51, 51, 51, 0.95);
+        }
+
+        /* 音乐盒子 */
+        .music-box {
+            width: 100%;
+            margin: 15px 0;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        body.night-mode .music-box {
+            background: rgba(0,0,0,0.2);
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .top-section {
+                gap: 5px;
+                padding: 0 10px;
+            }
+
+            .title {
+                font-size: 16px;
+            }
+
+            .page-button {
+                width: 25px;
+                height: 25px;
+            }
+
+            .page-number {
+                font-size: 12px;
+                padding: 3px 8px;
+            }
+
+            .float-menu {
+                gap: 10px;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部区域 -->
+    <div class="top-section">
+        <div class="avatar-box">
+            <div class="avatar" onclick="toggleSideMenu()"></div>
+        </div>
+
+        <div class="top-container">
+            <div class="title-box">
+                <div class="title" onclick="changeBackground()">网页标题</div>
+            </div>
+
+            <div class="pagination-container">
+                <div class="pagination">
+                    <button class="page-button" id="prev-page" onclick="prevPage()">◀</button>
+                    <div class="page-number" id="page-number">01/01</div>
+                    <button class="page-button" id="next-page" onclick="nextPage()">▶</button>
+                </div>
+                <button class="page-button float-menu-button" id="float-menu-button" onclick="toggleFloatMenu()">⚙️</button>
+            </div>
+        </div>
+
+        <div class="float-menu" id="float-menu">
+            <p onclick="toggleNightMode()">切换日/夜模式</p>
+            <p>菜单项 1</p>
+            <p>菜单项 2</p>
+            <p>菜单项 3</p>
+        </div>
+    </div>
+
+    <!-- 分割线 -->
+    <div class="divider"></div>
+
+    <!-- 内容区域 -->
+    <div class="bottom-section" id="bottom-section">
+        <div class="list" id="list"></div>
+    </div>
+
+    <!-- 侧拉菜单 -->
+    <div class="side-menu" id="side-menu">
+        <button class="close-button" onclick="toggleSideMenu()">×</button>
+        <div class="music-box">
+            <iframe 
+                frameborder="no" 
+                border="0" 
+                marginwidth="0" 
+                marginheight="0" 
+                width="100%" 
+                height="110" 
+                src="//music.163.com/outchain/player?type=0&id=7320043013&auto=1&height=90">
+            </iframe>
+        </div>
+        <p>侧拉菜单内容 1</p>
+        <p>侧拉菜单内容 2</p>
+        <p>侧拉菜单内容 3</p>
+    </div>
+
+    <!-- 遮罩层 -->
+    <div class="overlay" id="overlay" onclick="closeAllMenus()"></div>
+
+    <script>
+        // 文章数据
+        const articles = [
+            { id: 1, title: "文章 1", tag: "标签 1", date: "2023-10-01", link: "article1.html" },
+            { id: 2, title: "文章 2", tag: "标签 2", date: "2023-10-02", link: "article2.html" }
+        ];
+
+        // 分页设置
+        const articlesPerPage = 15;
+        let currentPage = 1;
+        let totalPages = Math.ceil(articles.length / articlesPerPage);
+
+        // 更新页码
+        function updatePageNumber() {
+            document.getElementById('page-number').textContent = 
+                `${String(currentPage).padStart(2, '0')}/${String(totalPages).padStart(2, '0')}`;
+            
+            document.getElementById('prev-page').style.display = currentPage === 1 ? 'none' : 'block';
+            document.getElementById('next-page').style.display = currentPage === totalPages ? 'none' : 'block';
+        }
+
+        // 生成内容
+        function generateBoxes() {
+            const list = document.getElementById('list');
+            list.innerHTML = '';
+            
+            const startIndex = (currentPage - 1) * articlesPerPage;
+            const endIndex = startIndex + articlesPerPage;
+            const currentArticles = articles.slice(startIndex, endIndex);
+
+            currentArticles.forEach(article => {
+                const box = document.createElement('div');
+                box.className = 'box';
+                box.innerHTML = `
+                    <img src="placeholder.jpg" alt="图片" width="100" height="60">
+                    <h3>${article.title}</h3>
+                    <p>${article.tag}</p>
+                    <p>${article.date}</p>
+                `;
+                box.onclick = () => window.location.href = article.link;
+                list.appendChild(box);
+            });
+
+            document.getElementById('bottom-section').style.display = 'block';
+        }
+
+        // 翻页功能
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                updatePageNumber();
+                generateBoxes();
+            }
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                updatePageNumber();
+                generateBoxes();
+            }
+        }
+
+        // 浮动菜单控制
+        function toggleFloatMenu() {
+            const floatMenu = document.getElementById('float-menu');
+            const titleBox = document.querySelector('.title-box');
+            const pagination = document.querySelector('.pagination');
+            
+            floatMenu.classList.toggle('open');
+            document.getElementById('float-menu-button').style.transform = 
+                floatMenu.classList.contains('open') ? 'rotate(-180deg)' : 'rotate(0deg)';
+            
+            titleBox.style.display = floatMenu.classList.contains('open') ? 'none' : 'flex';
+            pagination.style.display = floatMenu.classList.contains('open') ? 'none' : 'flex';
+            
+            if(floatMenu.classList.contains('open')) {
+                const availableWidth = document.querySelector('.top-container').offsetWidth - 
+                                     document.querySelector('.avatar-box').offsetWidth - 20;
+                floatMenu.style.width = availableWidth + 'px';
+            }
+        }
+
+        // 侧拉菜单控制
+        function toggleSideMenu() {
+            document.getElementById('side-menu').classList.toggle('open');
+            document.getElementById('overlay').style.display = 
+                document.getElementById('side-menu').classList.contains('open') ? 'block' : 'none';
+        }
+
+        // 关闭所有菜单
+        function closeAllMenus() {
+            document.getElementById('side-menu').classList.remove('open');
+            document.getElementById('float-menu').classList.remove('open');
+            document.getElementById('float-menu-button').style.transform = 'rotate(0deg)';
+            document.getElementById('title-box').style.display = 'flex';
+            document.getElementById('pagination').style.display = 'flex';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        // 夜间模式切换
+        function toggleNightMode() {
+            document.body.classList.toggle('night-mode');
+        }
+
+        // 初始化
+        function init() {
+            updatePageNumber();
+            generateBoxes();
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
+
+我需要这个的侧拉菜单样式，按钮互斥，以及点击空白部分自动关闭菜单逻辑
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分栏网页</title>
+    <style>
+        /* 基础样式 */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: Arial, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            overflow: hidden;
+        }
+
+        /* 夜间模式 */
+        body.night-mode {
+            background-color: #333;
+            color: #fff;
+        }
+        body.night-mode .box {
+            background-color: #444;
+            border-color: #666;
+        }
+
+        /* 顶部区域 */
+        .top-section {
+            height: 15%;
+            background-image: url('default-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        /* 头像 */
+        .avatar-box {
+            width: 100px;
+            height: 100px;
+            flex-shrink: 0;
+        }
+        .avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #ccc;
+            cursor: pointer;
+        }
+
+        /* 主容器 */
+        .top-container {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-left: 15px;
+        }
+
+        /* 标题 */
+        .title-box {
+            flex: 1;
+            min-width: 0;
+            margin-right: 15px;
+        }
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* 分页区 */
+        .pagination-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+        }
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .page-button {
+            width: 30px;
+            height: 30px;
+            border: none;
+            background: rgba(255,255,255,0.9);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .page-number {
+            background: rgba(255,255,255,0.9);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        /* 浮动菜单 */
+        .float-menu {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translate(-100%, -50%);
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: -4px 4px 12px rgba(0,0,0,0.1);
+            min-width: 150px;
+            max-width: calc(100vw - 140px);
+            display: none;
+            flex-direction: column;
+            z-index: 100;
+        }
+        .float-menu.open {
+            display: flex;
+            animation: menuSlide 0.3s;
+        }
+        @keyframes menuSlide {
+            from { opacity: 0; transform: translate(-80%, -50%); }
+            to { opacity: 1; transform: translate(-100%, -50%); }
+        }
+        .float-menu p {
+            padding: 12px 20px;
+            margin: 0;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .float-menu p:hover {
+            background: #f5f5f5;
+        }
+
+        /* 侧拉菜单 */
+        .side-menu {
+            position: fixed;
+            left: -80%;
+            top: 0;
+            width: 80%;
+            height: 100%;
+            background: #fff;
+            z-index: 1000;
+            transition: left 0.3s;
+            box-shadow: 4px 0 12px rgba(0,0,0,0.1);
+        }
+        .side-menu.open {
+            left: 0;
+        }
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* 遮罩层 */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.4);
+            display: none;
+            z-index: 999;
+        }
+
+        /* 内容区 */
+        .bottom-section {
+            height: 85%;
+            background: #e0e0e0;
+            padding: 15px 2%;
+            overflow-y: auto;
+        }
+        .box {
+            background: #fff;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .avatar-box {
+                width: 60px;
+                height: 60px;
+            }
+            .title {
+                font-size: 16px;
+            }
+            .page-button {
+                width: 25px;
+                height: 25px;
+            }
+            .page-number {
+                padding: 3px 10px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-section">
+        <div class="avatar-box">
+            <div class="avatar" onclick="openSideMenu()"></div>
+        </div>
+
+        <div class="top-container">
+            <div class="title-box" id="title-box">
+                <div class="title" onclick="changeBackground()">网页标题</div>
+            </div>
+
+            <div class="pagination-container">
+                <div class="pagination" id="pagination">
+                    <button class="page-button" id="prev-page" onclick="prevPage()">◀</button>
+                    <div class="page-number" id="page-number">01/01</div>
+                    <button class="page-button" id="next-page" onclick="nextPage()">▶</button>
+                </div>
+                <button class="page-button" onclick="toggleFloatMenu(event)">⚙️</button>
+                <div class="float-menu" id="float-menu">
+                    <p onclick="toggleNightMode()">切换日/夜模式</p>
+                    <p>菜单项1</p>
+                    <p>菜单项2</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-section" id="bottom-section">
+        <div class="list" id="list"></div>
+    </div>
+
+    <div class="side-menu" id="side-menu">
+        <button class="close-button" onclick="closeSideMenu()">×</button>
+        <div class="music-box">
+            <iframe 
+                frameborder="no"
+                border="0"
+                marginwidth="0"
+                marginheight="0"
+                width="100%"
+                height="110"
+                src="//music.163.com/outchain/player?type=0&id=7320043013&auto=1&height=90">
+            </iframe>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="closeSideMenu()"></div>
+
+    <script>
+        // 数据
+        const articles = Array.from({length: 30}, (_,i) => ({
+            id: i+1,
+            title: `文章 ${i+1}`,
+            tag: `标签 ${(i%3)+1}`,
+            date: `2023-10-${String(i+1).padStart(2,'0')}`,
+            link: '#'
+        }));
+
+        // 状态
+        let currentPage = 1;
+        const pageSize = 15;
+        let totalPages = Math.ceil(articles.length / pageSize);
+
+        // 侧拉菜单控制
+        function openSideMenu() {
+            document.getElementById('side-menu').classList.add('open');
+            document.getElementById('overlay').style.display = 'block';
+            closeFloatMenu();
+        }
+        function closeSideMenu() {
+            document.getElementById('side-menu').classList.remove('open');
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        // 浮动菜单控制
+        function toggleFloatMenu(e) {
+            const floatMenu = document.getElementById('float-menu');
+            const isOpen = floatMenu.classList.toggle('open');
+            
+            // 计算位置
+            const btnRect = e.currentTarget.getBoundingClientRect();
+            const avatarRect = document.querySelector('.avatar-box').getBoundingClientRect();
+            floatMenu.style.maxWidth = `${avatarRect.right - btnRect.left - 20}px`;
+            
+            // 控制显示
+            document.getElementById('title-box').style.display = isOpen ? 'none' : 'flex';
+            document.getElementById('pagination').style.display = isOpen ? 'flex' : 'none';
+        }
+        function closeFloatMenu() {
+            document.getElementById('float-menu').classList.remove('open');
+            document.getElementById('title-box').style.display = 'flex';
+            document.getElementById('pagination').style.display = 'flex';
+        }
+
+        // 分页功能
+        function updatePage() {
+            document.getElementById('page-number').textContent = 
+                `${String(currentPage).padStart(2,'0')}/${String(totalPages).padStart(2,'0')}`;
+            document.getElementById('prev-page').disabled = currentPage === 1;
+            document.getElementById('next-page').disabled = currentPage === totalPages;
+            
+            // 渲染内容
+            const start = (currentPage-1)*pageSize;
+            const list = document.getElementById('list');
+            list.innerHTML = articles.slice(start, start+pageSize).map(article => `
+                <div class="box" onclick="location.href='${article.link}'">
+                    <img src="placeholder.jpg" width="100" height="60">
+                    <div style="margin-left:15px">
+                        <h3>${article.title}</h3>
+                        <p>${article.tag} • ${article.date}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function prevPage() {
+            if(currentPage > 1) {
+                currentPage--;
+                updatePage();
+            }
+        }
+
+        function nextPage() {
+            if(currentPage < totalPages) {
+                currentPage++;
+                updatePage();
+            }
+        }
+
+        // 初始化
+        function init() {
+            updatePage();
+            document.addEventListener('click', (e) => {
+                if(!e.target.closest('.pagination-container')) {
+                    closeFloatMenu();
+                }
+            });
+        }
+        window.onload = init;
+    </script>
+</body>
+</html>
+
+我需要这个的浮动菜单样式以及逻辑
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分栏网页</title>
+    <style>
+        /* 全局样式 */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: Arial, sans-serif;
+            transition: background-color 0.3s, color 0.3s; /* 日/夜模式切换动画 */
+        }
+
+        /* 夜间模式 */
+        body.night-mode {
+            background-color: #333;
+            color: #fff;
+        }
+
+        /* 上半部分样式 */
+        .top-section {
+            height: 15%; /* 占网页高度的15% */
+            background-image: url('default-bg.jpg'); /* 默认背景图 */
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: flex-end; /* 内容靠下 */
+            padding: 0 20px; /* 左右内边距 */
+            box-sizing: border-box;
+            position: relative;
+            gap: 10px; /* 元素之间的间距 */
+        }
+
+        /* 图像按钮样式 */
+        .menu-button {
+            width: 40px; /* 按钮宽度 */
+            height: 40px; /* 按钮高度 */
+            background: none; /* 无背景颜色 */
+            border: none;
+            cursor: pointer;
+            flex-shrink: 0; /* 防止按钮变形 */
+            border-radius: 50%; /* 圆形按钮 */
+        }
+
+        /* 标题样式 */
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+            white-space: nowrap; /* 标题不换行 */
+            flex-shrink: 0; /* 防止标题变形 */
+            margin-right: auto; /* 标题与翻页区之间的间距 */
+            cursor: pointer; /* 点击切换背景图 */
+        }
+
+        /* 翻页区样式 */
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 3px; /* 按钮与页码之间的间距 */
+            flex-shrink: 0; /* 防止翻页区变形 */
+        }
+
+        /* 翻页按钮样式 */
+        .page-button {
+            width: 30px;
+            height: 30px;
+            background: none; /* 无背景颜色 */
+            border: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0; /* 防止按钮变形 */
+            border-radius: 50%; /* 圆形按钮 */
+        }
+
+        /* 页码样式 */
+        .page-number {
+            background: rgba(255, 255, 255, 0.8); /* 半透明背景 */
+            padding: 5px 10px;
+            border-radius: 20px; /* 圆角长方形 */
+            font-size: 14px;
+            flex-shrink: 0; /* 防止页码变形 */
+        }
+
+        /* 浮动菜单按钮样式 */
+        .float-menu-button {
+            width: 40px;
+            height: 40px;
+            background: none; /* 无背景颜色 */
+            border: none;
+            cursor: pointer;
+            flex-shrink: 0; /* 防止按钮变形 */
+            border-radius: 50%; /* 圆形按钮 */
+            position: absolute;
+            right: 20px; /* 靠右 */
+        }
+
+        /* 浮动菜单样式 */
+        .float-menu {
+            display: none; /* 默认隐藏 */
+            position: absolute;
+            top: 0;
+            right: 80px; /* 从浮动菜单按钮左侧开始 */
+            height: 100%;
+            background-color: #fff;
+            border-left: 2px solid #ccc;
+            padding: 10px 20px;
+            box-sizing: border-box;
+            z-index: 10;
+            flex-direction: row-reverse; /* 从右往左排列 */
+            align-items: center;
+            gap: 1px; /* 菜单项之间的间距 */
+        }
+
+        /* 夜间模式下的浮动菜单 */
+        body.night-mode .float-menu {
+            background-color: rgba(51, 51, 51, 0.9); /* 半透明背景 */
+            color: #fff;
+        }
+
+        /* 横线样式 */
+        .divider {
+            width: 92%;
+            height: 5px;
+            background-color: #000;
+            margin: 0 auto;
+        }
+
+        /* 下半部分样式 */
+        .bottom-section {
+            height: 85%; /* 占网页高度的85% */
+            background-color: #e0e0e0;
+            padding: 0 2%; /* 左右间距占96% */
+            box-sizing: border-box;
+            overflow-y: auto; /* 允许纵向滚动 */
+        }
+
+        /* 列表样式 */
+        .list {
+            display: flex;
+            flex-direction: column;
+            gap: 5px; /* 盒子之间的间距 */
+        }
+
+        /* 盒子样式 */
+        .box {
+            background-color: #fff;
+            padding: 5px; /* 内边距 */
+            border: 1px solid #ccc;
+            cursor: pointer; /* 点击跳转 */
+            display: flex;
+            align-items: center; /* 内容居中 */
+            text-align: center;
+            white-space: nowrap; /* 不换行 */
+        }
+
+        /* 第一个盒子与横线的间距 */
+        .box:first-child {
+            margin-top: 5px;
+        }
+
+        /* 夜间模式下的盒子样式 */
+        body.night-mode .box {
+            background-color: #444;
+            color: #fff;
+            border-color: #666;
+        }
+
+        /* 第15个盒子下方的空白盒子 */
+        .placeholder-box {
+            height: 50px; /* 留出空白区域 */
+            border: 1px solid #ccc;
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <!-- 上半部分 -->
+    <div class="top-section">
+        <!-- 图像按钮 -->
+        <button class="menu-button" onclick="toggleSideMenu()">☰</button>
+
+        <!-- 标题 -->
+        <div class="title" onclick="changeBackground()">网页标题</div>
+
+        <!-- 翻页区 -->
+        <div class="pagination">
+            <button class="page-button" id="prev-page" onclick="prevPage()">◀</button>
+            <div class="page-number" id="page-number">01/99</div>
+            <button class="page-button" id="next-page" onclick="nextPage()">▶</button>
+        </div>
+
+        <!-- 浮动菜单按钮 -->
+        <button class="float-menu-button" onclick="toggleFloatMenu()">⚙️</button>
+
+        <!-- 浮动菜单 -->
+        <div class="float-menu" id="float-menu">
+            <p onclick="toggleNightMode()">切换日/夜模式</p>
+            <p>菜单项 1</p>
+            <p>菜单项 2</p>
+            <p>菜单项 3</p>
+        </div>
+    </div>
+
+    <!-- 横线 -->
+    <div class="divider"></div>
+
+    <!-- 下半部分 -->
+    <div class="bottom-section">
+        <div class="list" id="list">
+            <!-- 15个盒子 -->
+            <div class="box" onclick="navigateToArticle()">
+                <img src="placeholder.jpg" alt="图片" width="100" height="60">
+                <h3>标题 1</h3>
+                <p>标签 1</p>
+                <p>2023-10-01</p>
+            </div>
+            <!-- 重复14个盒子 -->
+            <!-- ... -->
+            <div class="box" onclick="navigateToArticle()">
+                <img src="placeholder.jpg" alt="图片" width="100" height="60">
+                <h3>标题 15</h3>
+                <p>标签 15</p>
+                <p>2023-10-15</p>
+            </div>
+            <!-- 空白盒子 -->
+            <div class="placeholder-box"></div>
+        </div>
+    </div>
+
+    <script>
+        // 当前页码
+        let currentPage = 1;
+        const totalPages = 99;
+
+        // 更新页码显示
+        function updatePageNumber() {
+            const pageNumber = document.getElementById('page-number');
+            pageNumber.textContent = `${String(currentPage).padStart(2, '0')}/${String(totalPages).padStart(2, '0')}`;
+
+            // 如果在第一页，隐藏左翻页按钮
+            const prevButton = document.getElementById('prev-page');
+            prevButton.style.display = currentPage === 1 ? 'none' : 'block';
+        }
+
+        // 上一页
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                updatePageNumber();
+                refreshList(); // 刷新列表
+            }
+        }
+
+        // 下一页
+        function nextPage() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                updatePageNumber();
+                refreshList(); // 刷新列表
+            }
+        }
+
+        // 刷新列表
+        function refreshList() {
+            const list = document.getElementById('list');
+            list.innerHTML = ''; // 清空列表
+            for (let i = 1; i <= 15; i++) {
+                const box = document.createElement('div');
+                box.className = 'box';
+                box.innerHTML = `
+                    <img src="placeholder.jpg" alt="图片" width="100" height="60">
+                    <h3>标题 ${(currentPage - 1) * 15 + i}</h3>
+                    <p>标签 ${(currentPage - 1) * 15 + i}</p>
+                    <p>2023-10-${String((currentPage - 1) * 15 + i).padStart(2, '0')}</p>
+                `;
+                box.onclick = navigateToArticle;
+                list.appendChild(box);
+            }
+            // 添加空白盒子
+            const placeholderBox = document.createElement('div');
+            placeholderBox.className = 'placeholder-box';
+            list.appendChild(placeholderBox);
+        }
+
+        // 切换浮动菜单
+        function toggleFloatMenu() {
+            const floatMenu = document.getElementById('float-menu');
+            const pagination = document.querySelector('.pagination');
+            const title = document.querySelector('.title');
+
+            if (floatMenu.style.display === 'flex') {
+                floatMenu.style.display = 'none';
+                pagination.style.display = 'flex';
+                title.style.display = 'block';
+            } else {
+                floatMenu.style.display = 'flex';
+                pagination.style.display = 'none';
+                title.style.display = 'none';
+            }
+        }
+
+        // 切换日/夜模式
+        function toggleNightMode() {
+            document.body.classList.toggle('night-mode');
+        }
+
+        // 切换背景图
+        const backgrounds = ['bg1.jpg', 'bg2.jpg', 'bg3.jpg'];
+        let bgIndex = 0;
+        function changeBackground() {
+            const topSection = document.querySelector('.top-section');
+            bgIndex = (bgIndex + 1) % backgrounds.length;
+            topSection.style.backgroundImage = `url('${backgrounds[bgIndex]}')`;
+        }
+
+        // 跳转到文章
+        function navigateToArticle() {
+            window.location.href = 'article.html'; // 替换为实际链接
+        }
+
+        // 初始化页码和列表
+        updatePageNumber();
+        refreshList();
+    </script>
+</body>
+</html>
